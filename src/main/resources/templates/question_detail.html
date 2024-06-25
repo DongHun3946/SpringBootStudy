@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" layout:decorate="~{layout}">
+<html layout:decorate="~{layout}" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <!-- 필요한 헤드 태그들 -->
 </head>
@@ -21,11 +22,11 @@
             <div class="my-3">
                 <a class="btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
                    th:href="@{|/question/modify/${question.id}|}"
-                   th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
+                   th:if="${question.author != null and #authentication.name == question.author.username}"
                    th:text="수정"></a>
-                <a href="javascript:void(0);" th:data-uri="@{|/question/delete/${question.id}|}"
-                   class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-                   th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
+                <a class="delete btn btn-sm btn-outline-secondary" href="javascript:void(0);"
+                   sec:authorize="isAuthenticated()" th:data-uri="@{|/question/delete/${question.id}|}"
+                   th:if="${question.author != null and #authentication.name == question.author.username}"
                    th:text="삭제"></a>
             </div>
         </div>
@@ -50,19 +51,18 @@
     <!-- 답변 작성 -->
     <form class="my-3" method="post" th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}">
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>
-        <textarea class="form-control" disabled rows="10" sec:authorize="isAnonymous()" th:field="*{content}"></textarea>
-        <textarea class="form-control" rows="10" sec:authorize="isAuthenticated()" th:field="*{content}"></textarea>
+        <textarea class="form-control" rows="10" th:field="*{content}" th:disabled="${#authentication == null}"></textarea>
         <input class="btn btn-primary my-2" type="submit" value="답변 등록">
     </form>
 </div>
 
 <script layout:fragment="script" type='text/javascript'>
     const deleteElements = document.getElementsByClassName("delete");
-    Array.from(deleteElements).forEach(function(element) {
-        element.addEventListener('click', function() {
-            if(confirm("정말로 삭제하시겠습니까?")) {
+    Array.from(deleteElements).forEach(function (element) {
+        element.addEventListener('click', function () {
+            if (confirm("정말로 삭제하시겠습니까?")) {
                 location.href = this.getAttribute('data-uri');
-            };
+            }
         });
     });
 </script>
